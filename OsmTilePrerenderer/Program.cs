@@ -3,7 +3,7 @@ using OsmSharp;
 using OsmSharp.Streams;
 using OsmSharp.Geo; // for ToFeatureSource 
 
-using NetTopologySuite.Features;
+// using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 
 using System.Linq;
@@ -38,14 +38,15 @@ namespace OsmTilePrerenderer
             Mapsui.Map map = CreateMap();
 
             var mr = new Mapsui.Rendering.Skia.MapRenderer();
+            
             using (System.IO.MemoryStream ms = mr.RenderToBitmapStream(viewport, map.Layers, map.BackColor))
             {
                 byte[] bytes = ms.ToArray();
                 System.IO.File.WriteAllBytes("GuessFileFormat.png", bytes);
-            }
+            } // End Using System.IO.MemoryStream ms 
 
 
-        }
+        } // End Sub Main 
 
 
 
@@ -60,7 +61,7 @@ namespace OsmTilePrerenderer
                     Geometry = new Mapsui.Geometries.Point(random.Next(100000, 5000000), random.Next(100000, 5000000))
                 };
                 features.Add(feature);
-            }
+            } // Next i 
 
 
             var provider = new Mapsui.Providers.MemoryProvider(features);
@@ -92,8 +93,10 @@ namespace OsmTilePrerenderer
             // OsmStreamSource source = null;
             // OsmSharp.Geo.Streams.IFeatureStreamSource features = null;
             // System.Collections.Generic.List<IFeature> features = null; ;
-            FeatureCollection features = new FeatureCollection();
+            NetTopologySuite.Features.FeatureCollection features = new NetTopologySuite.Features.FeatureCollection();
 
+
+            // new Mapsui.Providers.MemoryProvider()
             Mapsui.Providers.IProvider source = null; // new Mapsui.Providers.MemoryProvider(features);
 
             Mapsui.Layers.ILayer layer = new Mapsui.Layers.MemoryLayer
@@ -123,6 +126,7 @@ namespace OsmTilePrerenderer
             }
             
         }
+
 
         static void ReadGeometryStream()
         {
@@ -154,16 +158,17 @@ namespace OsmTilePrerenderer
                 //          it's important to filter only the objects you need **before** 
                 //          you convert to a feature stream otherwise all objects will 
                 //          be kept in-memory.
+
                 OsmSharp.Geo.Streams.IFeatureStreamSource features = filtered.ToFeatureSource();
 
                 // filter out only linestrings.
-                System.Collections.Generic.IEnumerable<IFeature> lineStrings = from feature in features
+                System.Collections.Generic.IEnumerable<NetTopologySuite.Features.IFeature> lineStrings = from feature in features
                                   where feature.Geometry is LineString
                                   select feature;
 
                 // build feature collection.
-                FeatureCollection featureCollection = new FeatureCollection();
-                foreach (IFeature feature in lineStrings)
+                NetTopologySuite.Features.FeatureCollection featureCollection = new NetTopologySuite.Features.FeatureCollection();
+                foreach (NetTopologySuite.Features.IFeature feature in lineStrings)
                 {
                     featureCollection.Add(feature);
                 }
@@ -180,7 +185,7 @@ namespace OsmTilePrerenderer
         }
         
 
-        private static string ToJson(FeatureCollection featureCollection)
+        private static string ToJson(NetTopologySuite.Features.FeatureCollection featureCollection)
         {
             Newtonsoft.Json.JsonSerializer jsonSerializer = NetTopologySuite.IO.GeoJsonSerializer.Create();
             System.IO.TextWriter jsonStream = new System.IO.StringWriter();
